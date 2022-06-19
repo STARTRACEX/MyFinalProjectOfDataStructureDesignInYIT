@@ -2,45 +2,62 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <malloc.h>
+#include <string.h>
+#include <ctype.h>
+#include <conio.h>
+int lang = 936;
+char subj[100] = "DM", subj2[100] = "M";
 typedef struct studentStruct
 {
-    char name[10];
-
-    char num[10];
-    float score;
-    char sex[10];
+    char name[10], num[10];
+    float score, score2;
 } stu;
 typedef struct nodeStruct
 {
     stu data;
     struct nodeStruct *next;
 } node;
-//å»ºè¡¨
 stu Scan();
+node *Creat();
+void HeadAdd(node *head, stu data);
+void TailAdd(node *head, stu data);
 void Add(node *head);
-void AddT(node *head);
+void AddH(node *head);
 int Preinsert(node *head);
 void Insert(node *head, int i, stu e);
 void Print(node *p);
 void List(node *head);
 node *Find(node *head);
+node *FindPlus(node *head);
+void BETA();
+int DelPro(node *head);
 void Delete(node *head);
 int Alter(node *head);
 int AlterPlus(node *head);
 void Help();
+void HelpCN();
 int Cheak(char str[]);
 int Menu();
 void Quit();
+int SortCHECK(node *head);
+int SortAdaption(node *head, int subj);
 float Average(node *head);
 int More(node *head);
 int Less(node *head);
 void v();
 int main()
 {
+    system("title SIMS  1.5_Beta ");
+    system("chcp 936");
+    system("cls");
     node *l;
-    Help();
+    if (lang == 936)
+        HelpCN();
+    else
+        Help();
 menu:
-    // /menuæ—¶é‡æ–°è½½å…¥
+    // /menuÊ±ÖØĞÂÔØÈë
+
     while (1)
     {
         if (Menu() == 0)
@@ -52,31 +69,36 @@ menu:
     }
     return 0;
 }
+//´´½¨Ò»¸ö¿ÕÁ´±í£¬·µ»ØÁ´±íÍ·Ö¸Õë
 node *Creat()
 {
-    // åˆ†é…ç©ºé—´
+    // ·ÖÅä¿Õ¼ä
     node *head = (node *)malloc(sizeof(node));
-    // ä»¤å¤´èŠ‚ç‚¹æŒ‡å‘ç©º
+    // ÁîÍ·½ÚµãÖ¸Ïò¿Õ
     head->next = NULL;
     return head;
 }
-// å»ºç«‹æ–°çš„èŠ‚ç‚¹å¹¶ä»¥dataå¡«å……
+// ½¨Á¢ĞÂµÄ½Úµã²¢ÒÔdataÌî³ä
 node *Creatnode(stu data)
 {
     node *new = (node *)malloc(sizeof(node));
-    // æ–°èŠ‚ç‚¹çš„æ•°æ®åŸŸèµ‹å€¼
+    // ĞÂ½ÚµãµÄÊı¾İÓò¸³Öµ
     new->data = data;
     return new;
 }
-//å¯¹æ•°æ®è¾“å…¥èµ‹å€¼,å¯¹éæ³•è¾“å…¥èµ‹å€¼,è¿”å›èŠ‚ç‚¹çš„æ•°æ®
+//¶ÔÊı¾İÊäÈë¸³Öµ,¶Ô·Ç·¨ÊäÈë¸³Öµ,·µ»Ø½ÚµãµÄÊı¾İ
 stu Scan()
 {
+    int f = 1;
     stu data;
     char str[128];
     scanf("%s", str);
     if (strlen(str) >= 10)
     {
-        printf("Input ID failed:Too long\n");
+        if (lang == 936)
+            printf("ÄúÊäÈëµÄÌ«³¤ÁË£¬½«´¢´æÎªUnknow\n");
+        else
+            printf("Input ID failed:Too long\n");
         strcpy(data.num, "Unknow");
     }
     else
@@ -84,36 +106,112 @@ stu Scan()
     scanf("%s", str);
     if (strlen(str) >= 10)
     {
-        printf("Input name failed:Too long\n");
+        if (lang == 936)
+            printf("ÄúÊäÈëµÄÌ«³¤ÁË£¬½«´¢´æÎªUnknow\n");
+        else
+            printf("Input name failed:Too long\n");
         strcpy(data.name, "Unknow");
     }
     else
         strcpy(data.name, str);
-    scanf("%f", &data.score);
-    if (data.score > 150 || data.score < 0)
-    {
-        printf("Input score failed:Impossible data\n");
-        data.score = 0;
-    }
+    // score1
     scanf("%s", str);
-    if (strlen(str) >= 10)
+    //ÑéÖ¤·Ç·¨×Ö·û
+    for (int i = 0; i < strlen(str); i++)
     {
-        printf("Input gender failed:Too long\n");
-        strcpy(data.sex, "Unknow");
+        if (isdigit(str[i]) == 0 && str[i] != '.')
+        {
+            if (lang == 936)
+                printf("²»¿ÉÄÜµÄÊı¾İ£¬½«´¢´æÎª0\n");
+            else
+                printf("Input score failed:Impossible data\n");
+            data.score = 0;
+            f = 0; //×÷ÎªÒÑ¾­¶Ôscore¸³ÖµµÄ±êÖÂ£¬Ê¹Ö®ºóµÄÅĞ¶¨ÂÔ¹ı
+            break;
+        }
     }
-    else
-        strcpy(data.sex, str);
+    //ÑéÖ¤ºÏ·¨×Ö·û¡°.¡±Êı
+    if (f)
+        for (int i = 0, j = 0; i < strlen(str); i++)
+        {
+            if (str[i] == '.')
+                j++;
+            if (j > 1)
+            {
+                if (lang == 936)
+                    printf("²»¿ÉÄÜµÄÊı¾İ£¬½«´¢´æÎª0\n");
+                else
+                    printf("Input score failed:Impossible data\n");
+                f = 0;
+                data.score = 0;
+                break;
+            }
+        }
+    //ÑéÖ¤ºÏ·¨Êı×ÖÈ¡Öµ·¶Î§
+    if (f)
+        if (atof(str) > 150 || atof(str) < 0)
+        {
+            if (lang == 936)
+                printf("²»¿ÉÄÜµÄÊı¾İ£¬½«´¢´æÎª 0\n");
+            else
+                printf("Input score failed:Impossible data\n");
+            data.score = 0;
+        }
+    data.score = (float)atof(str);
+    // score2
+    scanf("%s", str);
+    //ÑéÖ¤·Ç·¨×Ö·û
+    for (int i = 0; i < strlen(str); i++)
+    {
+        if (isdigit(str[i]) == 0 && str[i] != '.')
+        {
+            if (lang == 936)
+                printf("²»¿ÉÄÜµÄÊı¾İ£¬½«´¢´æÎª0\n");
+            else
+                printf("Input score failed:Impossible data\n");
+            data.score2 = 0;
+            f = 0; //×÷ÎªÒÑ¾­¶Ôscore¸³ÖµµÄ±êÖÂ£¬Ê¹Ö®ºóµÄÅĞ¶¨ÂÔ¹ı
+            break;
+        }
+    }
+    //ÑéÖ¤ºÏ·¨×Ö·û¡°.¡±Êı
+    if (f)
+        for (int i = 0, j = 0; i < strlen(str); i++)
+        {
+            if (str[i] == '.')
+                j++;
+            if (j > 1)
+            {
+                if (lang == 936)
+                    printf("²»¿ÉÄÜµÄÊı¾İ£¬½«´¢´æÎª0\n");
+                else
+                    printf("Input score failed:Impossible data\n");
+                f = 0;
+                data.score2 = 0;
+                break;
+            }
+        }
+    //ÑéÖ¤ºÏ·¨Êı×ÖÈ¡Öµ·¶Î§
+    if (f)
+        if (atof(str) > 150 || atof(str) < 0)
+        {
+            if (lang == 936)
+                printf("²»¿ÉÄÜµÄÊı¾İ£¬½«´¢´æÎª 0\n");
+            else
+                printf("Input score failed:Impossible data\n");
+            data.score2 = 0;
+        }
+    data.score2 = (float)atof(str);
     return data;
 }
-// ä½¿ç”¨å¤´æ’æ³•å°†dataæ’å…¥åˆ°é“¾è¡¨lè¡¨å¤´
+// Ê¹ÓÃÍ·²å·¨½«data²åÈëµ½Á´±íl±íÍ·
 void HeadAdd(node *head, stu data)
 {
-    //å¯¹newæ–°å»ºèŠ‚ç‚¹èµ‹å€¼
     node *new = Creatnode(data);
     new->next = head->next;
     head->next = new;
 }
-// ä½¿ç”¨å°¾æ’æ³•å°†dataæ’å…¥åˆ°é“¾è¡¨lè¡¨å°¾
+// Ê¹ÓÃÎ²²å·¨½«data²åÈëµ½Á´±íl±íÎ²
 void TailAdd(node *head, stu data)
 {
     node *p = head;
@@ -121,21 +219,26 @@ void TailAdd(node *head, stu data)
     {
         p = p->next;
     }
-    //å¯¹newæ–°å»ºèŠ‚ç‚¹èµ‹å€¼
+    //¶ÔnewĞÂ½¨½Úµã¸³Öµ
     node *new = Creatnode(data);
     p->next = new;
     p->next->next = NULL;
 }
-// å°¾æ’æ³•è¾“å…¥èŠ‚ç‚¹åˆ°é“¾è¡¨å°¾éƒ¨
+// Î²²å·¨ÊäÈë½Úµãµ½Á´±íÎ²²¿
 void Add(node *head)
 {
-    printf("Input the data(ID Nmae Score and Gender):\n  ");
+    if (lang == 936)
+        printf("ÊäÈëĞÅÏ¢£¨ID ĞÕÃûºÍ·ÖÊı£©£º\n ");
+    else
+        printf("Input the data(ID Nmae Score):\n ");
     while (1)
     {
-        //æ’å…¥ä¸€æ¬¡åç¡®è®¤ï¼Œæç¤ºæ˜¯å¦ç»§ç»­
         TailAdd(head, Scan());
         fflush(stdin);
-        printf("-\nConfirm your input.\t(Continue:'Enter') ");
+        if (lang == 936)
+            printf("ÊäÈëÒÑ´¢´æ\t °´ÏÂ'Enter'È·ÈÏ");
+        else
+            printf("-\nConfirm your input.\t(Continue:'Enter') ");
         char c = getchar();
         if (c != '\n')
         {
@@ -147,34 +250,36 @@ void Add(node *head)
         }
     }
 }
-//å¤´æ’æ³•
+//Í·²å·¨
 void AddH(node *head)
 {
-    printf("Input the data(ID Nmae Score and Gender):\n  ");
+    if (lang == 936)
+        printf("ÊäÈëĞÅÏ¢£¨ID ĞÕÃûºÍ·ÖÊı£©£º\n ");
+    else
+        printf("Input the data(ID Nmae Score):\n  ");
     while (1)
     {
-        //æ’å…¥ä¸€æ¬¡åç¡®è®¤ï¼Œæç¤ºæ˜¯å¦ç»§ç»­
+        //²åÈëÒ»´ÎºóÈ·ÈÏ£¬ÌáÊ¾ÊÇ·ñ¼ÌĞø
         HeadAdd(head, Scan());
         fflush(stdin);
-        printf("-\nConfirm your input.\t(Continue:'Enter') ");
+        if (lang == 936)
+            printf("ÊäÈëÒÑ´¢´æ\t °´ÏÂ'Enter'¼ÌĞø");
+        else
+            printf("-\nConfirm your input.\t(Continue:'Enter') ");
         char c = getchar();
         if (c != '\n')
-        {
             break;
-        }
         else
-        {
             printf(" ");
-        }
     }
 }
-//ä¸ºInsertæä¾›æ•°æ®
+//ÎªInsertÌá¹©Êı¾İ
 int Preinsert(node *head)
 {
-    //è‹¥è¡¨ä¸ä¸ºç©º
+    //Èô±í²»Îª¿Õ
     if (head->next)
     {
-        //é€ä¸ªè¾“å‡ºèŠ‚ç‚¹å’Œåºå·
+        //Öğ¸öÊä³ö½ÚµãºÍĞòºÅ
         int sn = 1;
         node *p = head->next;
         while (p != NULL)
@@ -184,391 +289,1070 @@ int Preinsert(node *head)
             p = p->next;
             sn++;
         }
-        printf("\nInput the sequence number to insert:\n ");
+        if (lang == 936)
+            printf("ÊäÈëĞòÁĞºÅÒÔ²åÈëµ½£º\n ");
+        else
+            printf("\nInput the sequence number to insert:\n ");
         int i;
     retry:
         scanf("%d", &i);
-        //è‹¥è¾“å…¥åºå·ä¸å­˜åœ¨
+        //ÈôÊäÈëĞòºÅ²»´æÔÚ
         if (i > sn || i < 1)
         {
-            printf("\nImpossible sequence number.\n");
+            if (lang == 936)
+                printf("²»¿ÉÄÜµÄĞòºÅ£¬ÔÙÊÔÒ»´Î\n ");
+            else
+                printf("\nImpossible sequence number.\n");
             goto retry;
         }
-        //è‹¥è¾“å…¥åºå·å­˜åœ¨
+        //ÈôÊäÈëĞòºÅ´æÔÚ
         else
         {
-            printf("Input the data(ID Nmae Score and Gender):\n");
-            //ä¸ºæ–°æ•°æ®åˆ›å»ºèŠ‚ç‚¹ï¼Œå¹¶èµ‹å€¼
+            if (lang == 936)
+                printf("ÊäÈëĞÅÏ¢£¨ID ĞÕÃû£¬ºÍ·ÖÊı£©£º\n ");
+            else
+                printf("Input the data(ID Nmae Score):\n");
+            //ÎªĞÂÊı¾İ´´½¨½Úµã£¬²¢¸³Öµ
             node *in;
             in = Creatnode(Scan());
-            //è°ƒç”¨Insert
+            //µ÷ÓÃInsert
             Insert(head, i, in->data);
-            //æ•°æ®å®Œæˆæ’å…¥
-            printf("Data:\n\t");
+            //Êı¾İÍê³É²åÈë
+            if (lang == 936)
+                printf("Êı¾İ£º\n");
+            else
+                printf("Data:\n\t");
             Print(in);
-            printf("Inserted\n");
+            if (lang == 936)
+                printf("ÒÑ²åÈë\n");
+            else
+                printf("Inserted\n");
             free(in);
         }
         return 1;
     }
-    //è‹¥è¡¨ä¸ºç©º
+    //Èô±íÎª¿Õ
     else
     {
-        printf("Empty.\n");
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
         return 0;
     }
 }
-//åœ¨é“¾è¡¨ä¸­æ’å…¥èŠ‚ç‚¹ï¼Œiä¸ºæ’å…¥ä½ç½®ï¼Œeä¸ºæ’å…¥æ•°æ®
+//ÔÚÁ´±íÖĞ²åÈë½Úµã£¬iÎª²åÈëÎ»ÖÃ£¬eÎª²åÈëÊı¾İ
 void Insert(node *head, int i, stu e)
 {
-    //è‹¥æ’å…¥ä½ç½®ä¸ºç¬¬ä¸€ä¸ªèŠ‚ç‚¹
+    //Èô²åÈëÎ»ÖÃÎªµÚÒ»¸ö½Úµã
     if (i == 1)
     {
-        //åˆ›å»ºæ–°èŠ‚ç‚¹
+        //´´½¨ĞÂ½Úµã
         node *new = Creatnode(e);
-        //æ’å…¥èŠ‚ç‚¹
+        //²åÈë½Úµã
         new->next = head->next;
         head->next = new;
     }
     else
     {
-        //è®¾ç½®æŒ‡é’ˆpæŒ‡å‘ç¬¬i-1ä¸ªèŠ‚ç‚¹
+        //ÉèÖÃÖ¸ÕëpÖ¸ÏòµÚi-1¸ö½Úµã
         node *p = head->next;
         for (int j = 1; j < i - 1; j++)
         {
             p = p->next;
         }
-        //åˆ›å»ºæ–°èŠ‚ç‚¹
+        //´´½¨ĞÂ½Úµã
         node *new = Creatnode(e);
-        //æ’å…¥èŠ‚ç‚¹
+        //²åÈë½Úµã
         new->next = p->next;
         p->next = new;
     }
 }
-//è¾“å‡ºpèŠ‚ç‚¹ä¿¡æ¯
+//Êä³öp½ÚµãĞÅÏ¢
 void Print(node *p)
 {
-    printf(" %s\t%s\t%.2f \t %s\n", p->data.num, p->data.name, p->data.score, p->data.sex);
+    printf(" %s\t%s\t%.2f\t%.2f\n", p->data.num, p->data.name, p->data.score, p->data.score2);
 }
-//åˆ—å‡ºå…¨éƒ¨èŠ‚ç‚¹
+//ÁĞ³öÈ«²¿½Úµã
 void List(node *head)
 {
-    //è¡¨ä¸ä¸ºç©ºå¾ªç¯
+    //±í²»Îª¿ÕÑ­»·
     node *p = head->next;
     if (!p)
     {
-        printf("Empty.\n");
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
         return;
     }
-    while (p)
+    printf(" ID\tĞÕÃû\t%s\t%s\n", subj, subj2);
+    while (p != NULL)
     {
-        //è¾“å‡ºæ¯ä¸€ä¸ªèŠ‚ç‚¹ä¿¡æ¯
         Print(p);
         p = p->next;
     }
 }
-//æŸ¥æ‰¾è¡¨ä¸­ç­‰äºdataçš„èŠ‚ç‚¹å¹¶è¿”å›ï¼Œæ‰¾ä¸åˆ°è¿”å›NULL
+//²éÕÒ±íÖĞµÈÓÚdataµÄ½Úµã²¢·µ»Ø£¬ÕÒ²»µ½·µ»ØNULL
 node *Find(node *head)
 {
-    //è‹¥è¡¨ä¸ç©ºï¼Œæ­£å¸¸æ‰§è¡Œ
+    //Èô±í²»¿Õ£¬Õı³£Ö´ĞĞ
     if (head->next)
     {
-        //è®©ç”¨æˆ·è¾“å…¥è¦æŸ¥æ‰¾çš„æ•°æ®,å¹¶æ£€æŸ¥å…¶é•¿åº¦
-        printf("Input ID to search:\n");
+        //ÈÃÓÃ»§ÊäÈëÒª²éÕÒµÄÊı¾İ,²¢¼ì²éÆä³¤¶È
+        if (lang == 936)
+            printf("ÊäÈëÑ§ºÅÒÔËÑË÷£º\n");
+        else
+            printf("Input ID to search:\n");
         stu searchdata;
     retrynum:
         scanf("%s", searchdata.num);
         if (strlen(searchdata.num) > 10)
         {
-            printf("Too long,try again.\n");
+            if (lang == 936)
+                printf("ÄúÊäÈëµÄÌ«³¤ÁË£¡ÔÙÊÔÒ»´Î\n");
+            else
+                printf("Too long,try again.\n");
             goto retrynum;
         }
-        // pä»å¤´èŠ‚ç‚¹å¼€å§‹éå†
+        // p´ÓÍ·½Úµã¿ªÊ¼±éÀú
         node *p = head->next;
-        //å½“pä¸ä¸ºç©ºæ—¶å¾ªç¯
+        //µ±p²»Îª¿ÕÊ±Ñ­»·
         while (p)
         {
             if (!strcmp(p->data.num, searchdata.num))
             {
-                //æ‰¾åˆ°åè¾“å‡ºèŠ‚ç‚¹ä¿¡æ¯,è°ƒç”¨Print
-                printf("Found: ");
+                //ÕÒµ½ºóÊä³ö½ÚµãĞÅÏ¢,µ÷ÓÃPrint
+                if (lang == 936)
+                    printf("ÕÒµ½ÄÚÈİ£º\n");
+                else
+                    printf("Found: ");
                 Print(p);
                 break;
             }
             p = p->next;
         }
     }
-    //è‹¥ç©º
     else
-        printf("Empty.\n");
+    {
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
+    }
     return head->next;
 }
-//æŸ¥æ‰¾è¡¨ä¸­numç­‰äºsrçš„èŠ‚ç‚¹ï¼Œå°†å…¶åˆ é™¤
+node *FindPlus(node *head)
+{
+    // ÓÉÓÃ»§ÊäÈëÒª²éÕÒµÄÏîÄ¿
+    if (head->next)
+    {
+        if (lang == 936)
+        {
+            printf(" Í¨¹ıÏîÄ¿²éÕÒ£º\n\n");
+            printf(" <1>\t<2>\t<3>\n");
+            printf(" ĞÕÃû\t%s\t%s", subj, subj2);
+            printf("\nÇëÊäÈëĞòºÅ£º\n");
+        }
+        else
+        {
+            printf(" Set search by:\n\n");
+            printf(" <1>\t<2>\t<3>\n");
+            printf(" ĞÕÃû\t%s\t%s", subj, subj2);
+            printf("\nInput serial number:\n");
+        }
+        int i, f = 0;
+        node *p = head->next;
+        scanf("%d", &i);
+        switch (i)
+        {
+        case 1:
+            //ÊäÈëĞÕÃû
+            if (lang == 936)
+                printf("ÊäÈëĞÕÃû£º\n");
+            else
+                printf("Input name:\n");
+            char name[10];
+            scanf("%s", name);
+            // p´ÓÍ·½Úµã¿ªÊ¼±éÀú
+            //µ±p²»Îª¿ÕÊ±Ñ­»·
+            while (p)
+            {
+                if (!strcmp(p->data.name, name))
+                {
+                    //ÕÒµ½ºóÊä³ö½ÚµãĞÅÏ¢,µ÷ÓÃPrint
+                    if (f == 0)
+                    {
+                        if (lang == 936)
+                            printf("ÕÒµ½ÄÚÈİ£º\n");
+                        else
+                            printf("Found: ");
+                        f = 1;
+                    }
+                    Print(p);
+                }
+                p = p->next;
+            }
+            break;
+        case 2:
+            //ÊäÈëµÃ·Ö
+            if (lang == 936)
+                printf("ÊäÈëµÃ·Ö£º\n");
+            else
+                printf("Input score:\n");
+            float score;
+            scanf("%f", &score);
+            while (p)
+            {
+                if (p->data.score == score)
+                {
+                    //ÕÒµ½ºóÊä³ö½ÚµãĞÅÏ¢,µ÷ÓÃPrint
+                    if (f == 0)
+                    {
+                        if (lang == 936)
+                            printf("ÕÒµ½ÄÚÈİ£º\n");
+                        else
+                            printf("Found: ");
+                        f = 1;
+                    }
+                    Print(p);
+                }
+                p = p->next;
+            }
+            break;
+        case 3:
+            //ÊäÈëµÃ·Ö
+            if (lang == 936)
+                printf("ÊäÈëµÃ·Ö£º\n");
+            else
+                printf("Input score:\n");
+            scanf("%f", &score);
+            while (p)
+            {
+                if (p->data.score == score)
+                {
+                    //ÕÒµ½ºóÊä³ö½ÚµãĞÅÏ¢,µ÷ÓÃPrint
+                    if (f == 0)
+                    {
+                        if (lang == 936)
+                            printf("ÕÒµ½ÄÚÈİ£º\n");
+                        else
+                            printf("Found: ");
+                        f = 1;
+                    }
+                    Print(p);
+                }
+                p = p->next;
+            }
+            break;
+        default:
+            if (lang == 936)
+                printf("ÊäÈë´íÎó£¡\n");
+            else
+                printf("Input error!\n");
+            break;
+        }
+    }
+    else
+    {
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
+    }
+    return head->next;
+}
+//²éÕÒ±íÖĞnumµÈÓÚsrµÄ½Úµã£¬½«ÆäÉ¾³ı
 void Delete(node *head)
 {
-    //åˆ¤æ–­æ˜¯å¦ä¸ºç©ºè¡¨
+    //ÅĞ¶ÏÊÇ·ñÎª¿Õ±í
     if (!head->next)
     {
-        printf("Empty.\n");
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
         return;
     }
     char sr[128];
-    printf("Input ID to delete:\n");
+    if (lang == 936)
+        printf("ÊäÈëIDÒÔÉ¾³ı£º\n");
+    else
+        printf("Input ID to delete:\n");
 retrydeletenum:
     scanf("%s", sr);
-    //åˆ¤æ–­sræ˜¯å¦è¶…è¿‡10å­—ç¬¦
+    //ÅĞ¶ÏsrÊÇ·ñ³¬¹ı10×Ö·û
     if (strlen(sr) > 10)
     {
-        printf("Too long,try again.\n");
+        if (lang == 936)
+            printf("ÄúÊäÈëµÄÌ«³¤ÁË£¡ÔÙÊÔÒ»´Î\n");
+        else
+            printf("Too long,try again.\n");
         goto retrydeletenum;
     }
-    //å¾…åˆ é™¤ä»å¤´èŠ‚ç‚¹å¼€å§‹éå†
+    //´ıÉ¾³ı´ÓÍ·½Úµã¿ªÊ¼±éÀú
     node *delet = head->next;
     node *front = head;
-    //æŸ¥æ‰¾ç»“ç‚¹,åˆ é™¤èŠ‚ç‚¹ä¸ç­‰äºç›®æ ‡èŠ‚ç‚¹å‘åéå†,ç­‰äºé€€å‡ºå¾ªç¯
+    //²éÕÒ½áµã,É¾³ı½Úµã²»µÈÓÚÄ¿±ê½ÚµãÏòºó±éÀú,µÈÓÚÍË³öÑ­»·
     while (strcmp(delet->data.num, sr))
     {
         front = delet;
         delet = delet->next;
         if (delet == NULL)
         {
-            printf("Not found.\n");
+            if (lang == 936)
+                printf("Î´ÕÒµ½ÄÚÈİ\n");
+            else
+                printf("Not found.\n");
             return;
         }
     }
-    //æ‰¾åˆ°ååˆ é™¤
-    printf("Data:\n\t");
+    //ÕÒµ½ºóÉ¾³ı
+    if (lang == 936)
+        printf("Êı¾İ£º\n");
+    else
+        printf("Data:\n\t");
     Print(delet);
-    printf("Deleted.\n");
-    front->next = delet->next;
-    free(delet);
+    if (lang == 936)
+        printf("½«±»É¾³ı£¬°´ÏÂ'Enter'É¾³ı");
+    else
+        printf("Will be deleted. (Confirm:'Enter')");
+    //°´ÏÂenter¼ü²»ÔÙÉ¾³ı
+    char c;
+    fflush(stdin);
+    scanf("%c", &c);
+    if (c == '\n')
+    {
+        front->next = delet->next;
+        free(delet);
+    }
+    return;
 }
-//æŸ¥æ‰¾è¡¨ä¸­numç­‰äºsrçš„èŠ‚ç‚¹ï¼Œå°†å…¶ä¿®æ”¹
+int DelPro(node *head)
+{
+    //Èô±í²»Îª¿Õ
+    if (head->next)
+    {
+        if (lang == 936)
+        {
+            printf("Í¨¹ıÏîÄ¿É¾³ı£º\n\n");
+            printf("\t<1>\t<2>\t<3>\n");
+            printf("\tĞÕÃû\t%s\t%s", subj, subj2);
+            printf("\nÇëÊäÈëĞòºÅ£º\n");
+        }
+        else
+        {
+            printf(" Set search by:\n\n");
+            printf(" \t<1>\t<2>\t<3>\n");
+            printf(" \tĞÕÃû\t%s\t%s", subj, subj2);
+            printf("\nInput serial number:\n");
+        }
+        int sn = 0;
+        int se = 0;
+        node *p = head->next;
+        char ch[10];
+    dp:
+        // se×÷ÎªÑ¡Ôñ
+        scanf("%d", &se);
+        sn = 0;
+        switch (se)
+        {
+            //ÊäÈëĞÕÃû»òµÃ·Ö
+        case 1:
+            printf("ÊäÈëĞÕÃû£º\n");
+            scanf("%s", ch);
+            //Öğ¸öÊä³ö½ÚµãºÍĞòºÅ
+            while (p != NULL)
+            {
+                if (strcmp(p->data.name, ch) == 0)
+                {
+                    sn++;
+                    printf("<>>%d¸ö>£º%s\t%f\t%f\n", sn, p->data.name, p->data.score, p->data.score2);
+                }
+                p = p->next;
+                // p×îºóÊ±ÍË³ö
+                if (p == NULL)
+                    break;
+            }
+            break;
+        case 2:
+            printf("ÊäÈë%s£º\n", subj);
+            scanf("%s", ch);
+            while (p != NULL)
+            {
+                if (p->data.score == atof(ch))
+                {
+                    sn++;
+                    printf("<%d>£º%s\t%f\t%f\n", sn, p->data.name, p->data.score, p->data.score2);
+                }
+                p = p->next;
+                // p×îºóÊ±ÍË³ö
+                if (p == NULL)
+                    break;
+            }
+            break;
+        case 3: //Í¬ÉÏ
+            printf("ÊäÈë%s£º\n", subj2);
+            scanf("%s", ch);
+            while (p != NULL)
+            {
+                if (p->data.score2 == atof(ch))
+                {
+                    sn++;
+                    printf("<%d>£º%s\t%f\t%f\n", sn, p->data.name, p->data.score2);
+                }
+                p = p->next;
+                // p×îºóÊ±ÍË³ö
+                if (p == NULL)
+                    break;
+            }
+            break;
+        default:
+            //ÔÙÊÔÒ»´Î
+            if (lang == 936)
+                printf("²»´æÔÚµÄÏîÄ¿£¬ÔÙÊÔÒ»´Î£º\n");
+            else
+                printf("Input error,try items again:\n");
+            goto dp;
+            break;
+        }
+
+        //Èç¹ûÃ»ÓĞÏàÍ¬Ïî£¬·µ»Ø
+        if (sn == 0)
+        {
+            if (lang == 936)
+                printf("Î´ÕÒµ½ÏàÍ¬Ïî\n");
+            else
+                printf("Not found same item.\n");
+            return 0;
+        }
+        int num = 0, q = 1;
+
+    tr:
+        //ÊäÈëĞòºÅÉ¾³ı
+        if (lang == 936)
+            printf("ÇëÊäÈëĞòºÅ£º\n");
+        else
+            printf("Input serial number\n");
+
+        num = 0, q = 1;
+        q = scanf("%d", &num);
+        //ÈôÊäÈë´íÎó
+
+        if (q != 1 || num < 1 || num > sn)
+        {
+            if (lang == 936)
+                printf("ÊäÈë´íÎó£¬ÔÙÊÔÒ»´Î£º\n");
+            else
+                printf("Input error,try again:\n");
+            goto tr;
+        }
+        else
+        {
+            //Êä³öÌáÊ¾
+            if (lang == 936)
+                printf("Êı¾İ£º\n");
+            else
+                printf("Data:\n");
+            //Êä³ö±»É¾³ı½Úµã
+            int i = 1;
+            p = head->next;
+            while (p != NULL)
+            {
+                if (i == num)
+                {
+                    printf("<%d>£º%s\t%f\t%f\n", i, p->data.name, p->data.score, p->data.score2);
+                    break;
+                }
+                p = p->next;
+                i++;
+            }
+            if (lang == 936)
+                printf("½«±»É¾³ı£¬°´ÏÂ'Enter'È·ÈÏ\n");
+            else
+                printf("Will be delete.Confirm 'Enter'\n");
+            //°´ÏÂenter¼ü²»ÔÙÉ¾³ı
+            char c;
+            fflush(stdin);
+            scanf("%c", &c);
+            if (c != '\n')
+            {
+                return 0;
+            }
+            //ÈôÊäÈë1ÔòÉ¾³ıÍ·½Úµã
+            if (num == 1)
+            {
+                node *delet = head->next;
+                head->next = delet->next;
+                free(delet);
+            }
+            else
+            {
+                //ÈôÊäÈë×îºóÒ»¸ö½Úµã
+                if (num == sn)
+                {
+                    node *delet = head->next;
+                    while (delet->next != NULL)
+                        delet = delet->next;
+                    delet->next = NULL;
+                    free(delet);
+                }
+                else
+                {
+                    //ÈôÊäÈëÖĞ¼ä½Úµã
+                    node *delet = head->next;
+                    int i = 1;
+                    while (i < num - 1)
+                    {
+                        delet = delet->next;
+                        i++;
+                    }
+                    delet->next = delet->next->next;
+                    free(delet->next);
+                }
+            }
+            if (lang == 936)
+                printf("É¾³ıÒÑÍê³É\n");
+            else
+                printf("Delete completed.\n");
+        }
+    }
+    //Èô±íÎª¿Õ
+    else
+    {
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
+        return 0;
+    }
+}
+
+//²éÕÒ±íÖĞnumµÈÓÚsrµÄ½Úµã£¬½«ÆäĞŞ¸Ä
 int Alter(node *head)
 {
-    //åˆ¤æ–­æ˜¯å¦ä¸ºç©ºè¡¨
+    //ÅĞ¶ÏÊÇ·ñÎª¿Õ±í
     if (!head->next)
     {
-        printf("Empty.\n");
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
         return 0;
     }
     else
     {
         char sr[128];
-        printf("Input ID to modify:\n");
+        if (lang == 936)
+            printf("ÊäÈëIDÒÔĞŞ¸Ä\n");
+        else
+            printf("Input ID to modify:\n");
     retrymodifynum:
         scanf("%s", sr);
-        //åˆ¤æ–­sræ˜¯å¦è¶…è¿‡10å­—ç¬¦
+        //ÅĞ¶ÏsrÊÇ·ñ³¬¹ı10×Ö·û
         if (strlen(sr) > 10)
         {
-            printf("Too long,try again.\n");
+            if (lang == 936)
+                printf("ÄúÊäÈëµÄÌ«³¤ÁË£¡ÔÙÊÔÒ»´Î\n");
+            else
+                printf("Too long,try again.\n");
             goto retrymodifynum;
         }
-        // å¾…ä¿®æ”¹ä»å¤´èŠ‚ç‚¹å¼€å§‹éå†
+        // ´ıĞŞ¸Ä´ÓÍ·½Úµã¿ªÊ¼±éÀú
         node *modify = head->next;
-        //æŸ¥æ‰¾ç»“ç‚¹,ä¿®æ”¹èŠ‚ç‚¹ä¸ç­‰äºç›®æ ‡èŠ‚ç‚¹å‘åéå†,ç­‰äºé€€å‡ºå¾ªç¯
+        //²éÕÒ½áµã,ĞŞ¸Ä½Úµã²»µÈÓÚÄ¿±ê½ÚµãÏòºó±éÀú,µÈÓÚÍË³öÑ­»·
         while (strcmp(modify->data.num, sr))
         {
-            //æŸ¥æ‰¾è¦ä¿®æ”¹çš„èŠ‚ç‚¹
+            //²éÕÒÒªĞŞ¸ÄµÄ½Úµã
             modify = modify->next;
             if (modify == NULL)
             {
-                printf("Not found.\n");
+                if (lang == 936)
+                    printf("Î´ÕÒµ½ÄÚÈİ\n");
+                else
+                    printf("Not found.\n");
                 return 1;
             }
         }
-        //æ‰¾åˆ°åå…ˆè¾“å‡ºèŠ‚ç‚¹ä¿¡æ¯
+        //ÕÒµ½ºóÏÈÊä³ö½ÚµãĞÅÏ¢
         Print(modify);
-        //ç¡®è®¤ä¿®æ”¹
-        printf("Modify? \t\t(Continue:Enter)");
+        if (lang == 936)
+            printf("È·ÈÏĞŞ¸Ä£¿\t°´ÏÂ'Enter'¼ÌĞø");
+        else
+            printf("Modify? \t\t(Continue:'Enter')");
         char c;
         fflush(stdin);
         scanf("%c", &c);
         if (c != '\n')
             return 1;
-        //ä¿®æ”¹èŠ‚ç‚¹ä¿¡æ¯
-        printf("Input the data(ID Nmae Score and Gender):\n");
+        //ĞŞ¸Ä½ÚµãĞÅÏ¢
+        if (lang == 936)
+            printf("ÊäÈëĞÅÏ¢£¨ID,ĞÕÃûºÍ·ÖÊı£©£º\n");
+        else
+            printf("Input the data(ID Nmae Score):\n");
         modify->data = Scan();
-        //æç¤ºå·²å®Œæˆä¿®æ”¹
-        printf("Data:\n\t");
+        //ÌáÊ¾ÒÑÍê³ÉĞŞ¸Ä
+        if (lang == 936)
+            printf("Êı¾İ£º\n");
+        else
+            printf("Data:\n\t");
         Print(modify);
-        printf("Updated.\n");
+        if (lang == 936)
+            printf("ÒÑ¸üĞÂ\n");
+        else
+            printf("Updated.\n");
     }
     return 1;
 }
-//æŸ¥æ‰¾è¡¨ä¸­numç­‰äºsrçš„èŠ‚ç‚¹ï¼Œé€‰æ‹©ä¸€é¡¹æ•°æ®å°†å…¶ä¿®æ”¹
+//²éÕÒ±íÖĞnumµÈÓÚsrµÄ½Úµã£¬Ñ¡ÔñÒ»ÏîÊı¾İ½«ÆäĞŞ¸Ä
 int AlterPlus(node *head)
 {
-    //åˆ¤æ–­æ˜¯å¦ä¸ºç©ºè¡¨
+    //ÅĞ¶ÏÊÇ·ñÎª¿Õ±í
     if (!head->next)
     {
-        printf("Empty.\n");
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
         return 0;
     }
     else
     {
         char sr[128];
-        printf("Input ID to modify:\n");
+        if (lang == 936)
+            printf("ÊäÈëIDÒÔĞŞ¸Ä\n");
+        else
+            printf("Input ID to modify:\n");
     retrynum:
         scanf("%s", sr);
-        //åˆ¤æ–­sræ˜¯å¦è¶…è¿‡10å­—ç¬¦
+        //ÅĞ¶ÏsrÊÇ·ñ³¬¹ı10×Ö·û
         if (strlen(sr) > 10)
         {
-            printf("Too long,try again.\n");
+            if (lang == 936)
+                printf("ÄúÊäÈëµÄÌ«³¤ÁË£¡ÔÙÊÔÒ»´În");
+            else
+                printf("Too long,try again.\n");
             goto retrynum;
         }
-        // å¾…ä¿®æ”¹ä»å¤´èŠ‚ç‚¹å¼€å§‹éå†
+        // ´ıĞŞ¸Ä´ÓÍ·½Úµã¿ªÊ¼±éÀú
         node *modify = head->next;
-        //æŸ¥æ‰¾ç»“ç‚¹,ä¿®æ”¹èŠ‚ç‚¹ä¸ç­‰äºç›®æ ‡èŠ‚ç‚¹å‘åéå†,ç­‰äºé€€å‡ºå¾ªç¯
+        //²éÕÒ½áµã,ĞŞ¸Ä½Úµã²»µÈÓÚÄ¿±ê½ÚµãÏòºó±éÀú,µÈÓÚÍË³öÑ­»·
         while (strcmp(modify->data.num, sr))
         {
-            //æŸ¥æ‰¾è¦ä¿®æ”¹çš„èŠ‚ç‚¹
+            //²éÕÒÒªĞŞ¸ÄµÄ½Úµã
             modify = modify->next;
             if (modify == NULL)
             {
-                printf("Not found.\n");
+                if (lang == 936)
+                    printf("Î´ÕÒµ½ÄÚÈİ\n");
+                else
+                    printf("Not found.\n");
                 return 1;
             }
         }
-        //æ‰¾åˆ°åå…ˆè¾“å‡ºèŠ‚ç‚¹ä¿¡æ¯
-        printf("Items:  <1>\t<2>\t<3>\t<4>\nFound:  ");
+        //ÕÒµ½ºóÏÈÊä³ö½ÚµãĞÅÏ¢
+        if (lang == 936)
+        {
+            printf("\tID\tĞÕÃû\t%s\t%s\n", subj, subj2);
+            printf("ÏîÄ¿£º <1>\t<2>\t<3>\t<4>\nÄÚÈİ£º ");
+        }
+        else
+        {
+            printf("\tID\tName\t%s\t%s\n", subj, subj2);
+            printf("Items:  <1>\t<2>\t<3>\t<4>\nFound:  ");
+        }
         Print(modify);
-        //é€‰æ‹©ä¿®æ”¹é¡¹
+        //Ñ¡ÔñĞŞ¸ÄÏî
         int choice;
         char stest[128];
     rechoice:
-        printf("Select modified data item:\n");
+        if (lang == 936)
+            printf("Ñ¡ÔñÏîÄ¿ÒÔĞŞ¸Ä\n");
+        else
+            printf("Select modified data item:\n");
         fflush(stdin);
         scanf("%d", &choice);
-        //ç¡®è®¤ä¿®æ”¹
-        printf("Modify? \t\t(Continue:Enter)");
+        //È·ÈÏĞŞ¸Ä
+        if (lang == 936)
+            printf("È·ÈÏĞŞ¸Ä£¿\t\t°´ÏÂ'Enter'¼ÌĞø");
+        else
+            printf("Modify? \t\t(Continue:'Enter')");
         char c;
         fflush(stdin);
         scanf("%c", &c);
         if (c != '\n')
             return 1;
-        //ä¿®æ”¹èŠ‚ç‚¹ä¿¡æ¯
-        //æ ¹æ®choiceä¿®æ”¹èŠ‚ç‚¹ä¿¡æ¯
+        //ĞŞ¸Ä½ÚµãĞÅÏ¢/¸ù¾İchoiceĞŞ¸Ä½ÚµãĞÅÏ¢
         switch (choice)
         {
         case 1:
-            printf("Input new ID:\n");
+            if (lang == 936)
+                printf("ĞÂµÄID£º\n");
+            else
+                printf("Input new ID:\n");
             scanf("%s", stest);
             if (strlen(stest) > 10)
             {
-                printf("Too long,try again.\n");
+                if (lang == 936)
+                    printf("ÄúÊäÈëµÄÌ«³¤ÁË£¡ÔÙÊÔÒ»´În");
+                else
+                    printf("Too long,try again.\n");
                 goto rechoice;
             }
             strcpy(modify->data.num, stest);
             break;
         case 2:
-            printf("Input new name.\n");
+            if (lang == 936)
+                printf("ÊäÈëĞÂµÄĞÕÃû\n");
+            else
+                printf("Input new name.\n");
             scanf("%s", stest);
             if (strlen(stest) > 10)
             {
-                printf("Too long,try again.\n");
+                if (lang == 936)
+                    printf("ÄúÊäÈëµÄÌ«³¤ÁË£¡ÔÙÊÔÒ»´Î\n");
+                else
+                    printf("Too long,try again.\n");
                 goto rechoice;
             }
             strcpy(modify->data.name, stest);
             break;
         case 3:
-            printf("Input new score:\n");
-            scanf("%f", &modify->data.score);
-            if (modify->data.score < 0 || modify->data.score > 150)
+            if (lang == 936)
+                printf("ÊäÈëĞÂµÄ·ÖÊı\n");
+            else
+                printf("Input new score.\n");
+            scanf("%s", stest);
+            //ÅĞ¶ÏÊäÈëÊÇ·ñÎªÊı×ÖºÍĞ¡Êıµã
+            for (int i = 0; i < strlen(stest); i++)
             {
-                printf("Impossible data,try again.\n");
+                if ((isdigit(stest[i]) == 0) && stest[i] != '.')
+                {
+                    if (lang == 936)
+                        printf("²»¿ÉÄÜµÄÊı¾İ£¬ÔÙÊÔÒ»´Î\n");
+                    else
+                        printf("Impossible data,try again.\n");
+                    goto rechoice;
+                }
+            }
+            for (int i = 0, j = 0; i < strlen(stest); i++)
+            {
+
+                if (stest[i] == '.')
+                {
+                    j++;
+                    if (j > 1)
+                    {
+                        if (lang == 936)
+                            printf("²»¿ÉÄÜµÄÊı¾İ£¬ÔÙÊÔÒ»´Î\n");
+                        else
+                            printf("Input score failed:Impossible data\n");
+                        goto rechoice;
+                    }
+                }
+            }
+            if (atof(stest) < 0 || atof(stest) > 150)
+            {
+                if (lang == 936)
+                    printf("²»¿ÉÄÜµÄÊı¾İ£¬ÔÙÊÔÒ»´Î\n");
+                else
+                    printf("Impossible data,try again.\n");
                 goto rechoice;
             }
+            modify->data.score = (float)atof(stest);
             break;
         case 4:
-            printf("Input new sex:\n");
+            if (lang == 936)
+                printf("ÊäÈëĞÂµÄ·ÖÊı\n");
+            else
+                printf("Input new score.\n");
             scanf("%s", stest);
-            if (strlen(stest) > 10)
+            //ÅĞ¶ÏÊäÈëÊÇ·ñÎªÊı×ÖºÍĞ¡Êıµã
+            for (int i = 0; i < strlen(stest); i++)
             {
-                printf("Too long,try again.\n");
+                if ((isdigit(stest[i]) == 0) && stest[i] != '.')
+                {
+                    if (lang == 936)
+                        printf("²»¿ÉÄÜµÄÊı¾İ£¬ÔÙÊÔÒ»´Î\n");
+                    else
+                        printf("Impossible data,try again.\n");
+                    goto rechoice;
+                }
+            }
+            for (int i = 0, j = 0; i < strlen(stest); i++)
+            {
+                if (stest[i] == '.')
+                {
+                    j++;
+                    if (j > 1)
+                    {
+                        if (lang == 936)
+                            printf("²»¿ÉÄÜµÄÊı¾İ£¬ÔÙÊÔÒ»´Î\n");
+                        else
+                            printf("Input score failed:Impossible data\n");
+                        goto rechoice;
+                    }
+                }
+            }
+            if (atof(stest) < 0 || atof(stest) > 150)
+            {
+                if (lang == 936)
+                    printf("²»¿ÉÄÜµÄÊı¾İ£¬ÔÙÊÔÒ»´Î\n");
+                else
+                    printf("Impossible data,try again.\n");
                 goto rechoice;
             }
-            strcpy(modify->data.sex, stest);
+            modify->data.score = (float)atof(stest);
             break;
         default:
-            printf("Not found data:\n");
+            if (lang == 936)
+                printf("ÕÒ²»µ½ÄÚÈİ\n");
+            else
+                printf("Not found data:\n");
             goto rechoice;
         }
-        //æç¤ºå·²å®Œæˆä¿®æ”¹
-        printf("Data:\n");
+        //ĞŞ¸Ä³É¹¦
+        if (lang == 936)
+            printf("Êı¾İ\n");
+        else
+            printf("Data:\n");
         Print(modify);
-        printf("Updated.\n");
+        if (lang == 936)
+            printf("ÒÑ¸üĞÂ\n");
+        else
+            printf("Updated.\n");
     }
     return 1;
 }
-//æ±‚scoreçš„å¹³å‡å€¼
+//ÇóÆ½¾ù·Ö
 float Average(node *head)
 {
-    //åˆ¤æ–­æ˜¯å¦ä¸ºç©ºè¡¨
     if (!head->next)
     {
-        printf("Empty.\n");
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
         return 0;
     }
-    //è®¡ç®—æ€»åˆ†
-    float sum = 0, count = 0;
-    //éå†è¡¨
+    //¼ÆËã
+    float sum = 0, sum2 = 0, count = 0;
+    //±éÀúÏà¼Ó
     node *p = head->next;
     while (p)
     {
         sum += p->data.score;
+        sum2 += p->data.score2;
         count++;
         p = p->next;
     }
-    printf(" Average:%.2f\n", sum / count);
-    return sum / count;
+    if (lang == 936)
+        printf("Æ½¾ùÖµ£º%s %.2f\t%s %.2f\n", subj, sum / count, subj2, sum2 / count);
+    else
+        printf(" Average:%.2f\t%.2f\n", subj, sum / count, subj2, sum2 / count);
+    return 1;
 }
-//æ±‚scoreå¤§äº90çš„ä¸ªæ•°
+//Çó¸ßÓÚ90µÄÈËÊı
 int More(node *head)
 {
-    //åˆ¤æ–­æ˜¯å¦ä¸ºç©ºè¡¨
     if (!head->next)
     {
-        printf("Empty.\n");
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
         return 0;
     }
-    //è®¡æ•°
-    int count = 0;
-    //éå†è¡¨
+    int count = 0, count2 = 0;
     node *p = head->next;
     while (p)
     {
         if (p->data.score > 90)
             count++;
+        if (p->data.score2 > 90)
+            count2++;
         p = p->next;
     }
-    printf(" 'Score' more than 90: %d\n", count);
-    return count;
-    //è¿”å›å¤§äº60çš„ä¸ªæ•°
+
+    if (lang == 936)
+        printf("³¬¹ı90·ÖµÄÈËÊı£º%s %d\t%s %d\n", subj, count, subj2, count2);
+    else
+        printf(" 'Score' more than 90: %s %d\t%s %d\n", subj, count, subj2, count2);
+    return 1;
 }
-//æ±‚scorexiaoäº60çš„ä¸ªæ•°
-int Less(node *head)
+int SortCHECK(node *head)
 {
-    //åˆ¤æ–­æ˜¯å¦ä¸ºç©ºè¡¨
+    //¼ì²éÊÇ·ñÓĞÊı¾İ
     if (!head->next)
     {
-        printf("Empty.\n");
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
         return 0;
     }
-    //è®¡æ•°
-    int count = 0;
-    //éå†è¡¨
+    if (lang == 936)
+        printf("ÉèÖÃÅÅĞò¿ÆÄ¿\n");
+    else
+        printf("Set sort by subject\n");
+    printf("<1>\t<2>\t\n");
+    printf("%s\t%s\t\n", subj, subj2);
+    int choice;
+    fflush(stdin);
+    scanf("%d", &choice);
+    switch (choice)
+    {
+    case 1:
+        SortAdaption(head, 1);
+        break;
+    case 2:
+        SortAdaption(head, 2);
+        break;
+    }
+}
+
+//¶ÔsubjµÄscore½µĞòÅÅĞò
+int SortAdaption(node *head, int subj)
+{
+    // ´´½¨Ò»¸öĞÂ±í
+    int f = 1; //ÇĞ»»±êÖ¾
+flag:
+    f++;
+    printf("flag=%d\n", f);
+
+    node *newhead = (node *)malloc(sizeof(node));
+    newhead->next = NULL;
+    //±éÀúÁîĞÂ±íµÄÃ¿Ò»¸öscore¶¼µÈÓÚÔ­±íµÄÃ¿Ò»¸öscore
+    node *p = head->next;
+
+    while (p)
+    {
+        node *newnode = (node *)malloc(sizeof(node));
+        newnode->data = p->data;
+        newnode->next = NULL;
+        //²åÈëµ½ĞÂ±í
+        node *q = newhead;
+        if (f % 2 == 0)
+        {
+            if (subj == 1)
+                while (q->next && q->next->data.score < newnode->data.score)
+                    q = q->next;
+            if (subj == 2)
+                while (q->next && q->next->data.score2 < newnode->data.score2)
+                    q = q->next;
+        }
+        if (f % 2 == 1)
+        {
+            if (subj == 1)
+                while (q->next && q->next->data.score > newnode->data.score)
+                    q = q->next;
+            if (subj == 2)
+                while (q->next && q->next->data.score2 > newnode->data.score2)
+                    q = q->next;
+        }
+        newnode->next = q->next;
+        q->next = newnode;
+        p = p->next;
+    }
+    //Êä³öĞÂ±í
+    system("cls");
+    List(newhead);
+    if (lang == 936)
+    {
+        if (f % 2 == 0)
+            printf("Êı¾İÒÑÉıĞò\n");
+        else
+            printf("Êı¾İÒÑ½µĞò\n");
+        printf("'Enter'±£´æ\t'C'ÇĞ»»ÅÅĞò·½Ê½\n");
+    }
+    else
+    {
+        if (f % 2 == 0)
+            printf("Data ascending\n");
+        else
+            printf("Data descending.\n");
+        printf("Save:'Enter'\tChange direction:'C'\n");
+    }
+    //ÓÃ»§ÊäÈë»Ø³µ½«±£´æµ½Ô­±í
+    char c;
+    fflush(stdin);
+    c = getche();
+    if (c == '\r')
+    {
+        //½«ĞÂ±íµÄÊı¾İ¿½±´µ½Ô­±í
+        node *q = head->next;
+        node *p = newhead->next;
+        while (q)
+        {
+            q->data = p->data;
+            q = q->next;
+            p = p->next;
+        }
+        if (lang == 936)
+            printf("ÒÑ±£´æ\n");
+        else
+            printf("Saved\n");
+    }
+    if (c == 'C' || c == 'c')
+    {
+        goto flag;
+        printf("flag=%d\n", f);
+    }
+
+    return 1;
+}
+//Ğ¡ÓÚ60µÄÈËÊı
+int Less(node *head)
+{
+    if (!head->next)
+    {
+        if (lang == 936)
+            printf("¿ÕÊı¾İ\n");
+        else
+            printf("Empty.\n");
+        return 0;
+    }
+    int count = 0, count2 = 0;
     node *p = head->next;
     while (p)
     {
         if (p->data.score < 60)
             count++;
+        if (p->data.score2 < 60)
+            count2++;
         p = p->next;
     }
-    printf(" 'Score' less than 60: %d\n", count);
-    return count;
+    if (lang == 936)
+        printf("Ğ¡ÓÚ60·ÖµÄÈËÊı£º%d\t%d\n", count, count2);
+    else
+        printf(" 'Score' less than 60: %d\t%d\n", count, count2);
+    return 1;
 }
-
+void Save(node *head)
+{
+    //½«Êı¾İ±£´æµ½ÎÄ¼şdata.md
+    FILE *fp;
+    fp = fopen("data.md", "w");
+    if (!fp)
+    {
+        if (lang == 936)
+            printf("±£´æÊ§°Ü\n");
+        else
+            printf("Save failed.\n");
+        return;
+    }
+    node *p = head->next;
+    while (p)
+    {
+        fprintf(fp, "%s\t%s\t%f\t%f\n", p->data.num, p->data.name, p->data.score, p->data.score2);
+        p = p->next;
+    }
+    fclose(fp);
+    if (lang == 936)
+        printf("ÒÑ±£´æ\n");
+    else
+        printf("Saved.\n");
+}
 int Cheak(char str[])
 {
     char *c;
@@ -621,6 +1405,10 @@ int Cheak(char str[])
     {
         return 12;
     }
+    else if (!strcmp(c, "/SAVE") || !strcmp(c, "/S"))
+    {
+        return 20;
+    }
     else if (!strcmp(c, "/MENU") || !strcmp(c, "/M"))
     {
         return 0;
@@ -631,6 +1419,43 @@ int Cheak(char str[])
     }
     else if (!strcmp(c, "/HELP") || !strcmp(c, "/H"))
     {
+        return 90;
+    }
+    else if (!strcmp(c, "/SUBJ"))
+    {
+        return 439;
+    }
+    else if (!strcmp(c, "/SORTA") || !strcmp(c, "/SA"))
+    {
+        return 440;
+    }
+    else if (!strcmp(c, "/FINDA") || !strcmp(c, "/FA"))
+    {
+        return 19;
+    }
+    else if (!strcmp(c, "/LANG_CN") || !strcmp(c, "/CN"))
+    {
+        system("cls");
+        return 936;
+    }
+    else if (!strcmp(c, "/LANG_EN") || !strcmp(c, "/EN"))
+    {
+        system("cls");
+        return 101;
+    }
+    else if (!strcmp(c, "/BETA"))
+    {system("cls");
+        return 1000;
+    }
+    else if (!strcmp(c, "/DELPRO"))
+    {
+        
+        return 1001;
+    }
+    else if (!strncmp(c, "CHCP", 4))
+    {
+        //½«str·ÅÈësystemÖĞ
+        system(str);
         return 90;
     }
     else if (!strncmp(c, "SIMS", 4))
@@ -645,44 +1470,43 @@ int Cheak(char str[])
 int Menu()
 {
     char str[10];
-    int c; // cåˆ¤æ–­æ˜¯å¦ç»è¿‡ä¿®æ”¹ï¼Œè‹¥ç»è¿‡ä¿®æ”¹ï¼Œc=1ï¼Œåœ¨caseä¸­æç¤ºå¯èƒ½é€ æˆä¿®æ”¹ä¿¡æ¯é”™ä½çš„è­¦ç¤º
+    int c;
     node *l = Creat();
     while (1)
     {
-        printf("-Waiting for Command:\n");
+        if (lang == 936)
+            printf("-µÈ´ıÖ¸Áî...\n");
+        else
+            printf("-Waiting for Command:\n");
         gets(str);
         switch (Cheak(str))
         {
         case -2:
+            system("cls");
             v();
             break;
         case 0:
             return 0;
         case 1:
-        {
             l = Creat();
-            printf("Create Success.\n");
+            if (lang == 936)
+                printf("½¨Á¢³É¹¦\n");
+            else
+                printf("Create Success.\n");
             fflush(stdin);
             break;
-        }
         case 2:
-        {
             Add(l);
             fflush(stdin);
             break;
-        }
         case 3:
-        {
             Find(l);
             fflush(stdin);
             break;
-        }
         case 4:
-        {
             Delete(l);
             fflush(stdin);
             break;
-        }
         case 5:
             Alter(l);
             fflush(stdin);
@@ -712,61 +1536,156 @@ int Menu()
             fflush(stdin);
             break;
         case 12:
-            //ç»è¿‡äº†ä¿®æ”¹ï¼Œc=1
+            //¾­¹ıÁËĞŞ¸Ä£¬c=1
             if (c == 1)
             {
-                printf("ATTENTION: May cause data serial number dislocation\t(Continue:'Enter')");
-                //è¾“å…¥å›è½¦ç»§ç»­
+                if (lang == 936)
+                    printf("×¢Òâ£ºÕâ¿ÉÄÜÔì³ÉÊı¾İ»ìÂÒ\t°´ÏÂ'Enter'¼ÌĞø\n");
+                else
+                    printf("ATTENTION: May cause data serial number dislocation\t(Continue:'Enter')");
+                //ÊäÈë»Ø³µ¼ÌĞø£¬·ñÔòÍË»Ø
                 char c = getchar();
                 if (c == '\n')
                     AddH(l);
             }
-            //æœªç»ä¿®æ”¹ï¼Œç›´æ¥è¿›è¡Œæ’å…¥
+            //Î´¾­ĞŞ¸Ä£¬Ö±½Ó½øĞĞ²åÈë
             else
             {
                 AddH(l);
             }
             fflush(stdin);
             break;
-        case 90:
-            Help();
+        case 19:
+            FindPlus(l);
             fflush(stdin);
+            break;
+        case 20:
+            Save(l);
+            break;
+        case 90:
+            system("cls");
+            if (lang == 936)
+                HelpCN();
+            else
+                Help();
+            system("chcp");
+            fflush(stdin);
+            break;
+        case 439:
+            printf("Subj1:");
+            scanf("%s", subj);
+            printf("Subj2:");
+            scanf("%s", subj2);
+            fflush(stdin);
+            break;
+        case 440:
+            SortCHECK(l);
+            fflush(stdin);
+            break;
+        case 936:
+            lang = 936;
+            system("chcp");
+            printf("ÒÑ½«ÓïÑÔ¸ü¸ÄÖÁ ÖĞ¹ú-ÖĞÎÄ\n\n");
+            HelpCN();
+            break;
+        case 101:
+            lang = 101;
+            system("chcp");
+            printf("Language has been reset to  Global-English\n\n");
+            Help();
             break;
         case -1:
             Quit();
+            system("cls");
+            break;
+        case 1000:
+            BETA();
+            break;
+        case 1001:
+            DelPro(l);
+            break;
         default:
-            printf("\nUnknow Command.'/help' to view help.\n\n");
+            if (lang = 936)
+                printf("Î´ÖªµÄÃüÁî£¬ÊäÈë'/help'²é¿´°ïÖú\n\n");
+            else
+                printf("\nUnknow Command.'/help' to view help.\n\n");
             break;
         }
     }
 }
-void Help()
+void BETA()
 {
     system("cls");
+    printf("These functions are being improved\n");
+    printf("Custom delete\t\t'/Delpro'\n");
+    v();
+}
+void Help()
+{
     printf("-How to use?");
-    printf("\nView help         '/Help'   '/H'");
-    printf("\nReload Menu       '/Menu'   '/M'");
-    printf("\nCreat new         '/Creat'  '/C'");
-    printf("\nFind the data     '/Add'    '/A'");
-    printf("\nDelete the data   '/Insert' '/I'");
-    printf("\nFind the data     '/Find'   '/F'");
-    printf("\nAlter the data    '/Alter'  '/Al'");
-    printf("\nAlter a data item '/AlterI' '/Ai'");
-    printf("\nDelete the data   '/Delete' '/D'");
-    printf("\nList the dat      '/List'   '/L'");
-    printf("\nExit Program      '/Exit'   '/E'");
-    printf("\nCalculation:'/Avg''/More''/Less'");
+    printf("\nView help\t\t'/Help'   '/H'");
+    printf("\nReload Menu\t\t'/Menu'   '/M'");
+    printf("\nCreat new\t\t'/Creat'  '/C'");
+    printf("\nAdd new data\t\t'/Add'    '/A'");
+    printf("\nAdd new head data\t'/Addh'   '/Ah'");
+    printf("\nInsert the data\t\t'/Insert' '/I'");
+    printf("\nFind the data\t\t'/Find'   '/F'");
+    printf("\nCunsom find\t\t'/Finda'   '/Fa'");
+    printf("\nAlter the data\t\t'/Alter'  '/Al'");
+    printf("\nAlter a data item\t'/AlterI' '/Ai'");
+    printf("\nDelete the data\t\t'/Delete' '/D'");
+    printf("\nCustom sorting\t\t'/SortA'   '/SA'");
+    printf("\nChange (%s,%s)\t\t'/Subj'", subj, subj2);
+    printf("\nList the dat\t\t'/List'   '/L'");
+    printf("\nSave\t\t\t'/Save'   '/S'");
+    printf("\nExit Program\t\t'/Exit'   '/E'");
+    printf("\nCalculation:\t\t'/Avg''/More''/Less'");
+    printf("\n¸ü¸ÄÓïÑÔ\t\t'/Lang_cn'/Lang_en'");
+    printf("\n");
+}
+void HelpCN()
+{
+    printf("ÈçºÎÊ¹ÓÃ£¿");
+    printf("\n²é¿´°ïÖú\t\t'/Help'   '/H'");
+    printf("\n¼ÓÔØÖ÷²Ëµ¥\t\t'/Menu'   '/M'");
+    printf("\n½¨Á¢ĞÂÊı¾İ\t\t'/Creat'  '/C'");
+    printf("\nÌí¼ÓĞÂÊı¾İ\t\t'/Add'    '/A'");
+    printf("\nÍ·²¿Ìí¼ÓĞÂÊı¾İ\t\t'/Addh'   '/Ah'");
+    printf("\n²åÈëÊı¾İ\t\t'/Insert' '/I'");
+    printf("\n²éÕÒÊı¾İ\t\t'/Find'   '/F'");
+    printf("\n×Ô¶¨Òå²éÕÒ\t\t'/Finda'   '/Fa'");
+    printf("\nĞŞ¸ÄÊı¾İ\t\t'/Alter'  '/Al'");
+    printf("\nĞŞ¸ÄÊı¾İÏîÄ¿\t\t'/Alteri' '/Ai'");
+    printf("\nÉ¾³ıÊı¾İ\t\t'/Delete' '/D'");
+    printf("\n×Ô¶¨ÒåÅÅĞò\t\t'/SortA'   '/SA'");
+    printf("\n¿ÆÄ¿¸ü¸Ä (µ±Ç°%s,%s)\t'/Subj'", subj, subj2);
+    printf("\nÁĞ³öÈ«²¿Êı¾İ\t\t'/List'   '/L'");
+    printf("\n±£´æ\t\t\t'/Save'   '/S'");
+    printf("\nÍË³ö\t\t\t'/Exit'   '/E'");
+    printf("\n¼ÆËã:\t\t\t'/Avg''/More''/Less'");
+    printf("\n²âÊÔ°æÄÚÈİ\t\t'/Beta'");
+    printf("\nChange language\t\t'/Lang_cn'/Lang_en'");
     printf("\n");
 }
 void Quit()
 {
     system("cls");
-    printf("\nBye.\n");
-    Sleep(600);
-    exit(0);
+    if (lang == 936)
+        printf("\n\tÎ´±£´æµÄÄÚÈİ½«¶ªÊ§\t°´ÏÂ'Enter'ÍË³ö\n");
+    else
+        printf("\n\tUnsaved content will be lost\tExit:'Enter'\n");
+    char c = getch();
+    if (c == '\r')
+    {
+        system("cls");
+        printf("\nBye.\n");
+        Sleep(600);
+        exit(0);
+    }
+    else
+        return;
 }
 void v()
 {
-    system("cls");
-    printf("\tVersion:1.1_Beta_20210210020_WangShichao_YIT\n\tData location:in your ram\n\n");
+    printf("\n\n\tVersion:1.5_Beta_20210210020_WangShichao_YIT\n\tData save:dara.md\n\tView more through\n\t https://startracex.github.io/ \n\t https://github.com/STARTRACEX  \n");
 }
