@@ -458,7 +458,7 @@ node *FindPlus(node *head)
         {
             printf(" Set search by:\n\n");
             printf(" <1>\t<2>\t<3>\n");
-            printf(" ĞÕÃû\t%s\t%s", subj, subj2);
+            printf(" Name\t%s\t%s", subj, subj2);
             printf("\nInput serial number:\n");
         }
         int i, f = 0;
