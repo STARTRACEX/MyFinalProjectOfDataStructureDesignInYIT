@@ -1102,7 +1102,7 @@ int AlterPlus(node *head)
                     printf("Impossible data,try again.\n");
                 goto rechoice;
             }
-            modify->data.score = (float)atof(stest);
+            modify->data.score2 = (float)atof(stest);
             break;
         default:
             if (lang == 936)
