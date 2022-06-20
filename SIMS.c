@@ -1487,7 +1487,8 @@ int Menu()
             v();
             break;
         case 0:
-            return 0;
+            system("cls");
+            break;
         case 1:
             l = Creat();
             if (lang == 936)
