@@ -644,7 +644,7 @@ int DelPro(node *head)
         {
             printf(" Set search by:\n\n");
             printf(" \t<1>\t<2>\t<3>\n");
-            printf(" \t姓名\t%s\t%s", subj, subj2);
+            printf(" \tNane\t%s\t%s", subj, subj2);
             printf("\nInput serial number:\n");
         }
         int sn = 0;
@@ -1444,12 +1444,13 @@ int Cheak(char str[])
         return 101;
     }
     else if (!strcmp(c, "/BETA"))
-    {system("cls");
+    {
+        system("cls");
         return 1000;
     }
     else if (!strcmp(c, "/DELPRO"))
     {
-        
+
         return 1001;
     }
     else if (!strncmp(c, "CHCP", 4))
@@ -1653,11 +1654,11 @@ void HelpCN()
     printf("\n头部添加新数据\t\t'/Addh'   '/Ah'");
     printf("\n插入数据\t\t'/Insert' '/I'");
     printf("\n查找数据\t\t'/Find'   '/F'");
-    printf("\n自定义查找\t\t'/Finda'   '/Fa'");
+    printf("\n自定义查找\t\t'/Finda'  '/Fa'");
     printf("\n修改数据\t\t'/Alter'  '/Al'");
     printf("\n修改数据项目\t\t'/Alteri' '/Ai'");
     printf("\n删除数据\t\t'/Delete' '/D'");
-    printf("\n自定义排序\t\t'/SortA'   '/SA'");
+    printf("\n自定义排序\t\t'/SortA'  '/SA'");
     printf("\n科目更改 (当前%s,%s)\t'/Subj'", subj, subj2);
     printf("\n列出全部数据\t\t'/List'   '/L'");
     printf("\n保存\t\t\t'/Save'   '/S'");
