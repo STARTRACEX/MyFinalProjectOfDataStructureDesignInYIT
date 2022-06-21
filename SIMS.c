@@ -102,6 +102,7 @@ stu Scan()
         strcpy(data.num, "Unknow");
     }
     else
+
         strcpy(data.num, str);
     scanf("%s", str);
     if (strlen(str) >= 10)
@@ -157,6 +158,7 @@ stu Scan()
                 printf("Input score failed:Impossible data\n");
             data.score = 0;
         }
+    //对score类的输入赋值
     data.score = (float)atof(str);
     // score2
     scanf("%s", str);
@@ -492,6 +494,12 @@ node *FindPlus(node *head)
                     Print(p);
                 }
                 p = p->next;
+                if (p == NULL)
+                    if (f == 0)
+                        if (lang == 936)
+                            printf("没有找到\n");
+                        else
+                            printf("Not found.\n");
             }
             break;
         case 2:
@@ -518,6 +526,12 @@ node *FindPlus(node *head)
                     Print(p);
                 }
                 p = p->next;
+                if (p == NULL)
+                    if (f == 0)
+                        if (lang == 936)
+                            printf("没有找到\n");
+                        else
+                            printf("Not found.\n");
             }
             break;
         case 3:
@@ -543,6 +557,12 @@ node *FindPlus(node *head)
                     Print(p);
                 }
                 p = p->next;
+                if (p == NULL)
+                    if (f == 0)
+                        if (lang == 936)
+                            printf("没有找到\n");
+                        else
+                            printf("Not found.\n");
             }
             break;
         default:
@@ -591,14 +611,14 @@ retrydeletenum:
         goto retrydeletenum;
     }
     //待删除从头节点开始遍历
-    node *delet = head->next;
+    node *delete = head->next;
     node *front = head;
     //查找结点,删除节点不等于目标节点向后遍历,等于退出循环
-    while (strcmp(delet->data.num, sr))
+    while (strcmp(delete->data.num, sr))
     {
-        front = delet;
-        delet = delet->next;
-        if (delet == NULL)
+        front = delete;
+        delete = delete->next;
+        if (delete == NULL)
         {
             if (lang == 936)
                 printf("未找到内容\n");
@@ -612,19 +632,23 @@ retrydeletenum:
         printf("数据：\n");
     else
         printf("Data:\n\t");
-    Print(delet);
+    Print(delete);
     if (lang == 936)
         printf("将被删除，按下'Enter'删除");
     else
         printf("Will be deleted. (Confirm:'Enter')");
-    //按下enter键不再删除
+    //按下enter键删除
     char c;
     fflush(stdin);
     scanf("%c", &c);
     if (c == '\n')
     {
-        front->next = delet->next;
-        free(delet);
+        if (lang == 936)
+            printf("已删除\n");
+        else
+            printf("Deleted.\n");
+        front->next = delete->next;
+        free(delete);
     }
     return;
 }
@@ -1208,39 +1232,49 @@ int SortCHECK(node *head)
     case 2:
         SortAdaption(head, 2);
         break;
+    default:
+        if (lang == 936)
+            printf("找不到内容\n");
+        else
+            printf("Not found data:\n");
     }
 }
-
-//对subj的score降序排序
+//排序
 int SortAdaption(node *head, int subj)
 {
     // 创建一个新表
     int f = 1; //切换标志
 flag:
     f++;
-    printf("flag=%d\n", f);
-
+    //创建一个新表
     node *newhead = (node *)malloc(sizeof(node));
     newhead->next = NULL;
     //遍历令新表的每一个score都等于原表的每一个score
     node *p = head->next;
-
+    //若原链表不为空，创建节点，使p自增，对节点数值判断
     while (p)
     {
+        //创建供交换节点
         node *newnode = (node *)malloc(sizeof(node));
+        //新节点的每个data与被排序表的data相等
         newnode->data = p->data;
-        newnode->next = NULL;
-        //插入到新表
+        //新表头节点为q,令新节点插入
         node *q = newhead;
+        //判断排序类型
+        //升序
         if (f % 2 == 0)
         {
+            //判断排序依据
             if (subj == 1)
+                //若新表长大于1，判断大小，只要q的score小于newnode的score,q后移
                 while (q->next && q->next->data.score < newnode->data.score)
+                    //新表自增，到达合适位置
                     q = q->next;
             if (subj == 2)
                 while (q->next && q->next->data.score2 < newnode->data.score2)
                     q = q->next;
         }
+        //降序
         if (f % 2 == 1)
         {
             if (subj == 1)
@@ -1250,8 +1284,10 @@ flag:
                 while (q->next && q->next->data.score2 > newnode->data.score2)
                     q = q->next;
         }
+        //插入
         newnode->next = q->next;
         q->next = newnode;
+        //原表自增
         p = p->next;
     }
     //输出新表
@@ -1296,11 +1332,11 @@ flag:
     if (c == 'C' || c == 'c')
     {
         goto flag;
-        printf("flag=%d\n", f);
     }
 
     return 1;
 }
+
 //小于60的人数
 int Less(node *head)
 {
@@ -1471,7 +1507,7 @@ int Cheak(char str[])
 int Menu()
 {
     char str[10];
-    int c;
+    int c = 0;
     node *l = Creat();
     while (1)
     {
